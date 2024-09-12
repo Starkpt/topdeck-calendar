@@ -40,6 +40,7 @@ import { renderContainerDragOverlay } from "./components/Container/utils";
 import { renderSortableItemDragOverlay } from "./components/SortableItem/utils";
 import { Items, Props } from "./types/types";
 import { useDispatch, useSelector } from "react-redux";
+import { setClonedItems as setStoreClonedItems } from "./features/data/data";
 
 const TRASH_ID = "void";
 const PLACEHOLDER_ID = "placeholder";
@@ -65,9 +66,10 @@ export default function MultipleContainers({
 }: Props) {
   const count = useSelector((state) => state?.counter?.value);
   const storeItems = useSelector((state) => state?.data?.items);
+  const storeClonedItems = useSelector((state) => state?.data?.clonedItems);
   const dispatch = useDispatch();
 
-  console.log({ storeItems });
+  console.log({ storeItems, storeClonedItems });
 
   const [items, setItems] = useState<Items>(() => initialItems ?? storeItems);
   const [containers, setContainers] = useState(Object.keys(items) as UniqueIdentifier[]);
@@ -120,10 +122,10 @@ export default function MultipleContainers({
             overId = closestCenter({
               ...args,
               droppableContainers: args.droppableContainers.filter((container) => {
-                console.log({
-                  containerItems,
-                  id: container.id,
-                });
+                // console.log({
+                //   containerItems,
+                //   id: container.id,
+                // });
                 return container.id !== overId && containerItems.includes(container.id);
               }),
             })[0]?.id;
@@ -160,6 +162,7 @@ export default function MultipleContainers({
   const onDragStart = ({ active }: DragStartEvent) => {
     setActiveId(active.id);
     setClonedItems(items);
+    dispatch(setStoreClonedItems(items));
   };
 
   const onDragOver = ({ active, over }: DragOverEvent) => {
@@ -285,10 +288,10 @@ export default function MultipleContainers({
       // Reset items to their original state in case items have been
       // Dragged across containers
       setItems(clonedItems);
+      setClonedItems(clonedItems);
     }
 
     setActiveId(null);
-    setClonedItems(null);
   };
 
   useEffect(() => {

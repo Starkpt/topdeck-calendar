@@ -12,11 +12,34 @@ export const data = createSlice({
       C: createRange(itemCount, (index) => index * 3 + 8),
       // D: createRange(itemCount, (index) => `D${index + 1}`)
     },
+    clonedItems: [],
+    activeId: null,
   },
-  reducers: {},
+  reducers: {
+    setItems: (state, action) => {
+      state.clonedItems = action.payload;
+    },
+    setClonedItems: (state, action) => {
+      state.clonedItems = action.payload;
+    },
+
+    setActiveId: (state, action) => {
+      state.activeId = action.payload;
+    },
+
+    onDragCancel: (state) => {
+      if (state.clonedItems) {
+        // Reset items to their original state in case items have been
+        // Dragged across containers
+        setItems(state.clonedItems);
+      }
+
+      setActiveId(null);
+    },
+  },
 });
 
 // Action creators are generated for each case reducer function
-// export const { increment, decrement, incrementByAmount } = counterSlice.actions;
+export const { setItems, setClonedItems, setActiveId } = data.actions;
 
 export default data.reducer;
