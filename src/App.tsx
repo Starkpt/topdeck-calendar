@@ -26,7 +26,6 @@ import { useCallback, useEffect, useMemo, useRef } from "react";
 import { createPortal, unstable_batchedUpdates } from "react-dom";
 
 import { DroppableContainer, SortableItem, Trash } from "./components";
-import { decrement, increment } from "./features/counter/counterSlice";
 
 import {
   dropAnimation,
@@ -72,7 +71,6 @@ export default function MultipleContainers({
   scrollable,
 }: Props) {
   const data = useSelector((state) => state?.data);
-  const count = useSelector((state) => state?.counter?.value);
   const storeItems = useSelector((state) => state?.data?.items);
   // const storeClonedItems = useSelector((state) => state?.data?.clonedItems);
   const dispatch = useDispatch();
@@ -352,17 +350,6 @@ export default function MultipleContainers({
           gridAutoFlow: vertical ? "row" : "column",
         }}
       >
-        <div>
-          <div>
-            <button aria-label="Increment value" onClick={() => dispatch(increment())}>
-              Increment
-            </button>
-            <span>{count}</span>
-            <button aria-label="Decrement value" onClick={() => dispatch(decrement())}>
-              Decrement
-            </button>
-          </div>
-        </div>
         <SortableContext
           items={[...data.containers, PLACEHOLDER_ID]}
           strategy={vertical ? verticalListSortingStrategy : horizontalListSortingStrategy}
