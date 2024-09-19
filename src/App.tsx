@@ -22,7 +22,7 @@ import {
   SortableContext,
   verticalListSortingStrategy,
 } from "@dnd-kit/sortable";
-import { useCallback, useEffect, useMemo, useRef } from "react";
+import { useCallback, useEffect, useRef } from "react";
 import { createPortal, unstable_batchedUpdates } from "react-dom";
 
 import { DroppableContainer, SortableItem, Trash } from "./components";
@@ -34,18 +34,19 @@ import {
   coordinateGetter as multipleContainersCoordinateGetter,
 } from "./utils/util";
 
-import { useDispatch, useSelector } from "react-redux";
+import { shallowEqual, useDispatch, useSelector } from "react-redux";
 import { renderContainerDragOverlay } from "./components/Container/utils";
 import { renderSortableItemDragOverlay } from "./components/SortableItem/utils";
 import {
   getNextContainerId,
   handleAddColumn as handleStoreAddColumn,
   handleRemove as handleStoreRemove,
+  setContainers,
   setActiveId as setStoreActiveId,
   setClonedItems as setStoreClonedItems,
-  setContainers as setStoreContainers,
   setItems as setStoreItems,
 } from "./features/data/data";
+import { RootState } from "./store/store";
 import { Props } from "./types/types";
 
 const TRASH_ID = "void";
@@ -70,23 +71,21 @@ export default function MultipleContainers({
   vertical = false,
   scrollable,
 }: Props) {
-  const data = useSelector((state) => state?.data);
-  const storeItems = useSelector((state) => state?.data?.items);
-  // const storeClonedItems = useSelector((state) => state?.data?.clonedItems);
+  // const data = useSelector((state) => state?.data);
+  const { data } = useSelector((state: RootState) => state, shallowEqual);
+  // const items = useSelector((state: RootState) => state.data.items, shallowEqual);
+  const containers = useSelector((state: RootState) => state.data.containers, shallowEqual);
+
   const dispatch = useDispatch();
 
-  // console.log({ storeItems, storeClonedItems });
+  // Set up initial containers
+  dispatch(setContainers(data.items));
 
-  // const [items, setItems] = useState<Items>(() => storeItems);
-  // const [containers, setContainers] = useState(Object.keys(data.items) as UniqueIdentifier[]);
+  // const [items, setItems] = useState<Items>(() => items);
   // const [activeId, setActiveId] = useState<UniqueIdentifier | null>(null);
   const lastOverId = useRef<UniqueIdentifier | null>(null);
   const recentlyMovedToNewContainer = useRef(false);
-  const isSortingContainer = data.activeId ? data.containers.includes(data.activeId) : false;
-
-  useMemo(() => {
-    console.log({ containers: data.containers, cont: data.containers });
-  }, [data]);
+  const isSortingContainer = data.activeId ? containers.includes(data.activeId) : false;
 
   /**
    * Custom collision detection strategy optimized for multiple containers
@@ -256,9 +255,7 @@ export default function MultipleContainers({
       dispatch(
         setStoreItems({
           ...data.items,
-          [activeContainer]: data.items[activeContainer].filter(
-            (id: string) => id !== data.activeId
-          ),
+          [activeContainer]: data.items[activeContainer].filter((id) => id !== data.activeId),
         })
       );
       dispatch(setStoreActiveId(null));
@@ -267,16 +264,14 @@ export default function MultipleContainers({
     }
 
     if (overId === PLACEHOLDER_ID) {
-      const newContainerId = getNextContainerId(storeItems);
+      const newContainerId = getNextContainerId(data.items);
 
       unstable_batchedUpdates(() => {
-        dispatch(setStoreContainers([...data.containers, newContainerId]));
+        dispatch(setContainers([...containers, newContainerId]));
         dispatch(
           setStoreItems({
-            ...storeItems,
-            [activeContainer]: storeItems[activeContainer].filter(
-              (id: string) => id !== data.activeId
-            ),
+            ...data.items,
+            [activeContainer]: data.items[activeContainer].filter((id) => id !== data.activeId),
             [newContainerId]: [active.id],
           })
         );
@@ -351,10 +346,10 @@ export default function MultipleContainers({
         }}
       >
         <SortableContext
-          items={[...data.containers, PLACEHOLDER_ID]}
+          items={[...containers, PLACEHOLDER_ID]}
           strategy={vertical ? verticalListSortingStrategy : horizontalListSortingStrategy}
         >
-          {data.containers.map((containerId) => {
+          {containers.map((containerId) => {
             const test = data.items[containerId];
 
             return (
@@ -417,7 +412,7 @@ export default function MultipleContainers({
       {createPortal(
         <DragOverlay adjustScale={adjustScale} dropAnimation={dropAnimation}>
           {data.activeId
-            ? data.containers.includes(data.activeId)
+            ? containers.includes(data.activeId)
               ? renderContainerDragOverlay({
                   containerId: data.activeId,
                   items: data.items,
@@ -429,7 +424,7 @@ export default function MultipleContainers({
         </DragOverlay>,
         document.body
       )}
-      {trashable && data.activeId && !data.containers.includes(data.activeId) ? (
+      {trashable && data.activeId && !containers.includes(data.activeId) ? (
         <Trash id={TRASH_ID} />
       ) : null}
     </DndContext>
