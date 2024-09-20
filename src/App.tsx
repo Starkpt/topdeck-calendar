@@ -2,10 +2,8 @@ import {
   closestCenter,
   CollisionDetection,
   DndContext,
-  DragEndEvent,
   DragOverEvent,
   DragOverlay,
-  DragStartEvent,
   getFirstCollision,
   KeyboardSensor,
   MeasuringStrategy,
@@ -29,38 +27,30 @@ import { DroppableContainer, SortableItem, Trash } from "./components";
 
 import {
   dropAnimation,
-  findContainer,
-  getIndex,
   coordinateGetter as multipleContainersCoordinateGetter,
 } from "./utils/util";
 
 import { shallowEqual, useDispatch, useSelector } from "react-redux";
+import { Dispatch } from "redux";
 import { renderContainerDragOverlay } from "./components/Container/utils";
 import { renderSortableItemDragOverlay } from "./components/SortableItem/utils";
+import { onDragCancel, onDragEnd, onDragOver, onDragStart } from "./components/utils";
 import {
   handleRemove,
   handleAddColumn as handleStoreAddColumn,
-  onDragCancel,
-  onDragEnd,
-  onDragOver,
-  onDragStart,
   setContainers,
-  setItems,
-  setMovedToNewContainer,
 } from "./features/data/data";
 import { RootState } from "./store/store";
 import { Props } from "./types/types";
 
 const TRASH_ID = "void";
 const PLACEHOLDER_ID = "placeholder";
-const empty: UniqueIdentifier[] = [];
 
 export default function MultipleContainers({
   adjustScale = false,
   cancelDrop,
   columns,
   handle = false,
-  // items: initialItems,
   containerStyle,
   coordinateGetter = multipleContainersCoordinateGetter,
   getItemStyles = () => ({}),
@@ -74,23 +64,25 @@ export default function MultipleContainers({
   scrollable,
 }: Props) {
   const data = useSelector((state: RootState) => state.data, shallowEqual);
+  const dispatch = useDispatch<Dispatch>();
 
-  const dispatch = useDispatch();
-
-  // Set up initial containers
-  useEffect(() => {
-    dispatch(setContainers(data.items));
-  }, [data.items, dispatch]);
-
-  useEffect(() => {
-    requestAnimationFrame(() => {
-      recentlyMovedToNewContainer.current = false;
-    });
-  }, [data]);
-
+  const initialized = useRef(false);
   const lastOverId = useRef<UniqueIdentifier | null>(null);
   const recentlyMovedToNewContainer = useRef(false);
   const isSortingContainer = data.activeId ? data.containers.includes(data.activeId) : false;
+
+  // Set up initial containers
+  useEffect(() => {
+    if (!initialized.current) {
+      dispatch(setContainers(data.items));
+      initialized.current = true;
+    }
+  }, [data.items, dispatch]);
+
+  // Reset recentlyMovedToNewContainer ref
+  useEffect(() => {
+    recentlyMovedToNewContainer.current = false;
+  }, [data.activeId]);
 
   /**
    * Custom collision detection strategy optimized for multiple containers
@@ -167,6 +159,19 @@ export default function MultipleContainers({
     useSensor(KeyboardSensor, { coordinateGetter })
   );
 
+  const dragOverlayContent = useMemo(() => {
+    if (!data.activeId) return null;
+
+    return data.containers.includes(data.activeId)
+      ? renderContainerDragOverlay({
+          containerId: data.activeId,
+          items: data.items,
+          columns,
+          handle,
+        })
+      : renderSortableItemDragOverlay({ id: data.activeId, items: data.items, handle });
+  }, [data.activeId, data.containers, data.items, columns, handle]);
+
   return (
     <DndContext
       sensors={sensors}
@@ -176,10 +181,10 @@ export default function MultipleContainers({
           strategy: MeasuringStrategy.Always,
         },
       }}
-      onDragStart={(event: DragStartEvent) => onDragStart(event)}
-      onDragOver={(event: DragOverEvent) => onDragOver(event)}
-      onDragEnd={(event: DragEndEvent) => onDragEnd(event)}
-      onDragCancel={() => onDragCancel()}
+      onDragStart={onDragStart}
+      onDragOver={(event: DragOverEvent) => onDragOver(event, recentlyMovedToNewContainer)}
+      onDragEnd={onDragEnd}
+      onDragCancel={onDragCancel}
       cancelDrop={cancelDrop}
       modifiers={modifiers}
     >
@@ -192,44 +197,50 @@ export default function MultipleContainers({
         }}
       >
         <SortableContext
-          items={[...data.containers, PLACEHOLDER_ID]}
+          items={data.containers.filter((containerId) => containerId !== PLACEHOLDER_ID)} // Exclude PLACEHOLDER_ID
           strategy={vertical ? verticalListSortingStrategy : horizontalListSortingStrategy}
         >
           {data.containers.map((containerId) => {
-            const sortableItems = data.items[containerId];
+            //TODO: Fix this part
+            const allItems = {
+              ...data.items,
+              [PLACEHOLDER_ID]: [], // Ensure PLACEHOLDER_ID has an empty array
+            };
 
+            if (containerId === PLACEHOLDER_ID) {
+              return null; // Skip rendering as a sortable container
+            }
+
+            const sortableItems = allItems[containerId] || []; // Fallback in case items are undefined
             return (
               <DroppableContainer
                 key={containerId}
                 id={containerId}
                 label={minimal ? undefined : `Column ${containerId}`}
                 columns={columns}
-                items={data.items[containerId]}
+                items={sortableItems}
                 scrollable={scrollable}
                 style={containerStyle}
                 unstyled={minimal}
                 onRemove={() => dispatch(handleRemove(containerId))}
-                // disabled
               >
-                <SortableContext items={data.items[containerId]} strategy={strategy}>
+                <SortableContext items={sortableItems} strategy={strategy}>
                   {sortableItems?.length ? (
-                    sortableItems.map((value, index) => {
-                      return (
-                        <SortableItem
-                          disabled={isSortingContainer}
-                          key={value}
-                          id={value}
-                          index={index}
-                          handle={handle}
-                          style={getItemStyles}
-                          wrapperStyle={wrapperStyle}
-                          renderItem={renderItem}
-                          containerId={containerId}
-                          getIndex={getIndex}
-                          items={data.items}
-                        />
-                      );
-                    })
+                    sortableItems?.map((value, index) => (
+                      <SortableItem
+                        disabled={isSortingContainer}
+                        key={value}
+                        id={value}
+                        index={index}
+                        handle={handle}
+                        style={getItemStyles}
+                        wrapperStyle={wrapperStyle}
+                        renderItem={renderItem}
+                        containerId={containerId}
+                        getIndex={() => index}
+                        items={data.items}
+                      />
+                    ))
                   ) : (
                     <div>
                       <p>Nothing to see</p>
@@ -239,35 +250,24 @@ export default function MultipleContainers({
               </DroppableContainer>
             );
           })}
-          {minimal ? undefined : (
-            <DroppableContainer
-              id={PLACEHOLDER_ID}
-              disabled={isSortingContainer}
-              items={empty}
-              onClick={() => dispatch(handleStoreAddColumn())}
-              placeholder
-            >
-              + Add column
-            </DroppableContainer>
-          )}
+          <DroppableContainer
+            id={PLACEHOLDER_ID}
+            disabled={isSortingContainer}
+            items={[]} // No items, this is just a placeholder
+            onClick={() => dispatch(handleStoreAddColumn())}
+            placeholder
+          >
+            + Add column
+          </DroppableContainer>
         </SortableContext>
       </div>
       {createPortal(
         <DragOverlay adjustScale={adjustScale} dropAnimation={dropAnimation}>
-          {data.activeId
-            ? data.containers.includes(data.activeId)
-              ? renderContainerDragOverlay({
-                  containerId: data.activeId,
-                  items: data.items,
-                  columns,
-                  handle,
-                })
-              : renderSortableItemDragOverlay({ id: data.activeId, items: data.items, handle })
-            : null}
+          {dragOverlayContent}
         </DragOverlay>,
         document.body
       )}
-      {trashable && data.activeId && !data.containers.includes(data.activeId) ? (
+      {trashable && data.activeId && !data?.containers.includes(data.activeId) ? (
         <Trash id={TRASH_ID} />
       ) : null}
     </DndContext>
