@@ -55,7 +55,7 @@ export default function MultipleContainers({
   modifiers,
   renderItem,
   strategy = verticalListSortingStrategy,
-  trashable = false,
+  trashable = true,
   vertical = false,
   scrollable,
 }: Props) {
@@ -256,6 +256,7 @@ export default function MultipleContainers({
         </DragOverlay>,
         document.body
       )}
+
       {trashable && data.activeId && !data?.containers.includes(data.activeId) ? (
         <Trash id={TRASH_ID} />
       ) : null}
