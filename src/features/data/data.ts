@@ -32,12 +32,13 @@ export const data = createSlice({
       state.clonedItems = action.payload;
     },
     setContainers: (state, action) => {
-      state.containers = Object.keys(action.payload);
+      state.containers = action.payload;
     },
     setActiveId: (state, action) => {
       state.activeId = action.payload;
     },
 
+    // TODO: Fix handleRemove logic
     handleRemove: (state, action) => {
       setContainers(state.containers.filter((id) => id !== action.payload));
     },

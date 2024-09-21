@@ -22,26 +22,22 @@ import {
 } from "@dnd-kit/sortable";
 import { useCallback, useEffect, useMemo, useRef } from "react";
 import { createPortal } from "react-dom";
+import { shallowEqual, useDispatch, useSelector } from "react-redux";
+import { Dispatch } from "redux";
 
 import { DroppableContainer, SortableItem, Trash } from "./components";
+import { renderContainerDragOverlay } from "./components/Container/utils";
+import { renderSortableItemDragOverlay } from "./components/SortableItem/utils";
+import { onDragCancel, onDragEnd, onDragOver, onDragStart } from "./components/utils";
+import { handleAddColumn, handleRemove, setContainers } from "./features/data/data";
 
+import { RootState } from "./store/store";
+
+import { Props } from "./types/types";
 import {
   dropAnimation,
   coordinateGetter as multipleContainersCoordinateGetter,
 } from "./utils/util";
-
-import { shallowEqual, useDispatch, useSelector } from "react-redux";
-import { Dispatch } from "redux";
-import { renderContainerDragOverlay } from "./components/Container/utils";
-import { renderSortableItemDragOverlay } from "./components/SortableItem/utils";
-import { onDragCancel, onDragEnd, onDragOver, onDragStart } from "./components/utils";
-import {
-  handleRemove,
-  handleAddColumn as handleStoreAddColumn,
-  setContainers,
-} from "./features/data/data";
-import { RootState } from "./store/store";
-import { Props } from "./types/types";
 
 const TRASH_ID = "void";
 const PLACEHOLDER_ID = "placeholder";
@@ -74,7 +70,7 @@ export default function MultipleContainers({
   // Set up initial containers
   useEffect(() => {
     if (!initialized.current) {
-      dispatch(setContainers(data.items));
+      dispatch(setContainers(Object.keys(data.items)));
       initialized.current = true;
     }
   }, [data.items, dispatch]);
@@ -201,32 +197,25 @@ export default function MultipleContainers({
           strategy={vertical ? verticalListSortingStrategy : horizontalListSortingStrategy}
         >
           {data.containers.map((containerId) => {
-            //TODO: Fix this part
-            const allItems = {
-              ...data.items,
-              [PLACEHOLDER_ID]: [], // Ensure PLACEHOLDER_ID has an empty array
-            };
-
             if (containerId === PLACEHOLDER_ID) {
               return null; // Skip rendering as a sortable container
             }
 
-            const sortableItems = allItems[containerId] || []; // Fallback in case items are undefined
             return (
               <DroppableContainer
                 key={containerId}
                 id={containerId}
                 label={minimal ? undefined : `Column ${containerId}`}
                 columns={columns}
-                items={sortableItems}
+                items={data.items[containerId]}
                 scrollable={scrollable}
                 style={containerStyle}
                 unstyled={minimal}
-                onRemove={() => dispatch(handleRemove(containerId))}
+                //TODO: onRemove={() => dispatch(handleRemove(containerId))}
               >
-                <SortableContext items={sortableItems} strategy={strategy}>
-                  {sortableItems?.length ? (
-                    sortableItems?.map((value, index) => (
+                <SortableContext items={data.items[containerId]} strategy={strategy}>
+                  {data.items[containerId]?.length ? (
+                    data.items[containerId]?.map((value, index) => (
                       <SortableItem
                         disabled={isSortingContainer}
                         key={value}
@@ -254,7 +243,7 @@ export default function MultipleContainers({
             id={PLACEHOLDER_ID}
             disabled={isSortingContainer}
             items={[]} // No items, this is just a placeholder
-            onClick={() => dispatch(handleStoreAddColumn())}
+            onClick={() => dispatch(handleAddColumn())}
             placeholder
           >
             + Add column
