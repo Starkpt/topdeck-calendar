@@ -131,13 +131,7 @@ export const animateLayoutChanges: AnimateLayoutChanges = (args) =>
   defaultAnimateLayoutChanges({ ...args, wasDragging: true });
 
 export const dropAnimation: DropAnimation = {
-  sideEffects: defaultDropAnimationSideEffects({
-    styles: {
-      active: {
-        opacity: "0.5",
-      },
-    },
-  }),
+  sideEffects: defaultDropAnimationSideEffects({ styles: { active: { opacity: "0.5" } } }),
 };
 
 export function getColor(id: UniqueIdentifier) {

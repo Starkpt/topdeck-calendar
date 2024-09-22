@@ -9,7 +9,6 @@ export interface SortableItemProps {
   handle: boolean;
   disabled?: boolean;
   style(args: any): React.CSSProperties;
-  getIndex(id: UniqueIdentifier, Items: Items): number;
   renderItem(): React.ReactElement;
   wrapperStyle({ index }: { index: number }): React.CSSProperties;
 }

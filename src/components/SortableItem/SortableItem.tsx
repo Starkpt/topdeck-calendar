@@ -1,6 +1,6 @@
 import { useSortable } from "@dnd-kit/sortable";
 import { useMountStatus } from "../../hooks/customHooks";
-import { getColor } from "../../utils/util";
+import { getColor, getIndex } from "../../utils/util";
 import { Item } from "../Item";
 import { SortableItemProps } from "./types";
 
@@ -12,7 +12,6 @@ export function SortableItem({
   renderItem,
   style,
   containerId,
-  getIndex,
   wrapperStyle,
   items,
 }: SortableItemProps) {

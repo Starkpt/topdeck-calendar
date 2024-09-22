@@ -38,9 +38,8 @@ export const data = createSlice({
       state.activeId = action.payload;
     },
 
-    // TODO: Fix handleRemove logic
     handleRemove: (state, action) => {
-      setContainers(state.containers.filter((id) => id !== action.payload));
+      state.containers = state.containers.filter((id) => id !== action.payload);
     },
     handleAddColumn: (state) => {
       const newContainerId = getNextContainerId(state.items); // Use helper function to get next ID

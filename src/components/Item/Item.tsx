@@ -5,8 +5,9 @@ import type { Transform } from "@dnd-kit/utilities";
 
 import { Handle, Remove } from "./components";
 
-//@ts-ignore
 import styles from "./Item.module.css";
+
+import img from "/MtG.png";
 
 export interface Props {
   dragOverlay?: boolean;
@@ -81,17 +82,17 @@ export const Item = React.memo(
 
       return renderItem ? (
         renderItem({
+          ref,
+          index,
+          style,
           dragOverlay: Boolean(dragOverlay),
           dragging: Boolean(dragging),
           sorting: Boolean(sorting),
-          index,
           fadeIn: Boolean(fadeIn),
           listeners,
-          ref,
-          style,
-          transform,
           transition,
-          value
+          transform,
+          value,
         })
       ) : (
         <li
@@ -104,23 +105,13 @@ export const Item = React.memo(
           style={
             {
               ...wrapperStyle,
-              transition: [transition, wrapperStyle?.transition]
-                .filter(Boolean)
-                .join(", "),
-              "--translate-x": transform
-                ? `${Math.round(transform.x)}px`
-                : undefined,
-              "--translate-y": transform
-                ? `${Math.round(transform.y)}px`
-                : undefined,
-              "--scale-x": transform?.scaleX
-                ? `${transform.scaleX}`
-                : undefined,
-              "--scale-y": transform?.scaleY
-                ? `${transform.scaleY}`
-                : undefined,
+              transition: [transition, wrapperStyle?.transition].filter(Boolean).join(", "),
+              "--translate-x": transform ? `${Math.round(transform.x)}px` : undefined,
+              "--translate-y": transform ? `${Math.round(transform.y)}px` : undefined,
+              "--scale-x": transform?.scaleX ? `${transform.scaleX}` : undefined,
+              "--scale-y": transform?.scaleY ? `${transform.scaleY}` : undefined,
               "--index": index,
-              "--color": color
+              "--color": color,
             } as React.CSSProperties
           }
           ref={ref}
@@ -134,17 +125,22 @@ export const Item = React.memo(
               disabled && styles.disabled,
               color && styles.color
             )}
-            style={style}
+            style={{ ...style, backgroundColor: "#FFECDF", maxHeight: "127px", maxWidth: "393px" }}
             data-cypress="draggable-item"
             {...(!handle ? listeners : undefined)}
             {...props}
             tabIndex={!handle ? 0 : undefined}
           >
+            <img
+              src={img}
+              alt="Image"
+              // srcset=""
+            />
+            <input type="datetime" name="datetime" id="date-time" />
+            Value:
             {value}
             <span className={styles.Actions}>
-              {onRemove ? (
-                <Remove className={styles.Remove} onClick={onRemove} />
-              ) : null}
+              {onRemove ? <Remove className={styles.Remove} onClick={onRemove} /> : null}
               {handle ? <Handle {...handleProps} {...listeners} /> : null}
             </span>
           </div>
