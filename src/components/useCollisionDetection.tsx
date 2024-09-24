@@ -11,7 +11,6 @@ import { MutableRefObject, useCallback } from "react";
 import store from "../store/store";
 
 const TRASH_ID = "void";
-// const collisionDetectionStrategy: CollisionDetection =
 
 /**
  * Custom collision detection strategy optimized for multiple containers

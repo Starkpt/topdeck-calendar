@@ -1,13 +1,13 @@
-import React, { useEffect } from "react";
-import classNames from "classnames";
 import type { DraggableSyntheticListeners } from "@dnd-kit/core";
 import type { Transform } from "@dnd-kit/utilities";
+import classNames from "classnames";
+import React, { useEffect } from "react";
 
 import { Handle, Remove } from "./components";
 
 import styles from "./Item.module.css";
 
-import img from "/MtG.png";
+import DropdownSelect from "../DropdownSelect/DropdownSelect";
 
 export interface Props {
   dragOverlay?: boolean;
@@ -131,14 +131,8 @@ export const Item = React.memo(
             {...props}
             tabIndex={!handle ? 0 : undefined}
           >
-            <img
-              src={img}
-              alt="Image"
-              // srcset=""
-            />
-            <input type="datetime" name="datetime" id="date-time" />
-            Value:
-            {value}
+            <DropdownSelect />
+            Value: {value}
             <span className={styles.Actions}>
               {onRemove ? <Remove className={styles.Remove} onClick={onRemove} /> : null}
               {handle ? <Handle {...handleProps} {...listeners} /> : null}
