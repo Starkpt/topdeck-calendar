@@ -1,7 +1,5 @@
 import Select, { Props, StylesConfig } from "react-select";
 
-import MtG from "/MtG.png";
-
 const dot = (color = "transparent") => ({
   alignItems: "center",
   display: "flex",
@@ -20,12 +18,15 @@ const dot = (color = "transparent") => ({
 const dotStyles: StylesConfig = {
   control: (styles) => ({ ...styles, backgroundColor: "white" }),
   option: (styles) => ({ ...styles, backgroundColor: "white" }),
-  input: (styles) => ({ ...styles, ...dot("#444") }),
-  placeholder: (styles) => ({ ...styles, ...dot("#ccc") }),
-  singleValue: (styles) => ({ ...styles, ...dot("#888") }),
+  input: (styles) => ({ ...styles, height: "80px" }),
+  placeholder: (styles) => ({ ...styles }),
+  singleValue: (styles) => ({ ...styles, width: "100%" }),
+  container: (styles) => ({ ...styles, width: "100%" }),
+  // menu: (styles) => ({ ...styles, backgroundColor: "black", position: "relative" }),
+  menuPortal: (styles) => ({ ...styles, zIndex: 99999 }),
 };
 
-export default function DropdownSelect(props: Props) {
+export default function DropdownSelect(props: Props, { ref }) {
   const games = [
     { label: "Dragon Ball Super W", value: "dbsw", image: "/dbsw.png" },
     { label: "Dragon Ball Super B", value: "dbsb", image: "/dbsb.png" },
@@ -51,6 +52,7 @@ export default function DropdownSelect(props: Props) {
             height: "80px",
             display: "flex",
             alignItems: "center",
+            justifyContent: "center",
           }}
         >
           <img src={game?.image} style={{ height: "60px" }} alt="game-image" />

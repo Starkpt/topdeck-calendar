@@ -1,14 +1,19 @@
-/* eslint-disable */
-
 import { UniqueIdentifier } from "@dnd-kit/core";
 import { useSortable } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
-import React from "react";
+import React, { useMemo } from "react";
 
 import { Container, ContainerProps } from "../Container";
 import { animateLayoutChanges } from "../../utils/util";
 
-export function DroppableContainer({
+interface DroppableContainerProps extends ContainerProps {
+  disabled?: boolean;
+  id: UniqueIdentifier;
+  items: UniqueIdentifier[];
+  style?: React.CSSProperties;
+}
+
+export const DroppableContainer: React.FC<DroppableContainerProps> = ({
   children,
   columns = 1,
   disabled,
@@ -16,12 +21,7 @@ export function DroppableContainer({
   items,
   style,
   ...props
-}: ContainerProps & {
-  disabled?: boolean;
-  id: UniqueIdentifier;
-  items: UniqueIdentifier[];
-  style?: React.CSSProperties;
-}) {
+}) => {
   const { active, attributes, isDragging, listeners, over, setNodeRef, transition, transform } =
     useSortable({
       id,
@@ -31,9 +31,16 @@ export function DroppableContainer({
       },
       animateLayoutChanges,
     });
-  const isOverContainer = over
-    ? (id === over.id && active?.data.current?.type !== "container") || items.includes(over.id)
-    : false;
+
+  const isOverContainer = useMemo(() => {
+    if (!over) {
+      return false;
+    }
+
+    return (
+      (id === over.id && active?.data.current?.type !== "container") || items.includes(over.id)
+    );
+  }, [over, id, active, items]);
 
   return (
     <Container
@@ -55,4 +62,4 @@ export function DroppableContainer({
       {children}
     </Container>
   );
-}
+};

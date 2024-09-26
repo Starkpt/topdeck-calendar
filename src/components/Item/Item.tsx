@@ -15,7 +15,7 @@ export interface Props {
   disabled?: boolean;
   dragging?: boolean;
   handle?: boolean;
-  handleProps?: any;
+  handleProps?: React.HTMLAttributes<HTMLButtonElement>;
   height?: number;
   index?: number;
   fadeIn?: boolean;
@@ -34,7 +34,7 @@ export interface Props {
     index: number | undefined;
     fadeIn: boolean;
     listeners: DraggableSyntheticListeners;
-    ref: React.Ref<HTMLElement>;
+    ref: React.Ref<HTMLLIElement>;
     style: React.CSSProperties | undefined;
     transform: Props["transform"];
     transition: Props["transition"];
@@ -47,18 +47,18 @@ export const Item = React.memo(
     (
       {
         color,
-        dragOverlay,
-        dragging,
-        disabled,
-        fadeIn,
-        handle,
+        dragOverlay = false,
+        dragging = false,
+        disabled = false,
+        fadeIn = false,
+        handle = false,
         handleProps,
-        height,
+        // height,
         index,
         listeners,
         onRemove,
         renderItem,
-        sorting,
+        sorting = false,
         style,
         transition,
         transform,
@@ -69,39 +69,39 @@ export const Item = React.memo(
       ref
     ) => {
       useEffect(() => {
-        if (!dragOverlay) {
-          return;
+        if (dragOverlay) {
+          document.body.style.cursor = "grabbing";
+          return () => {
+            document.body.style.cursor = "";
+          };
         }
-
-        document.body.style.cursor = "grabbing";
-
-        return () => {
-          document.body.style.cursor = "";
-        };
       }, [dragOverlay]);
 
-      return renderItem ? (
-        renderItem({
+      // Render using custom renderItem if provided
+      if (renderItem) {
+        return renderItem({
           ref,
           index,
           style,
-          dragOverlay: Boolean(dragOverlay),
-          dragging: Boolean(dragging),
-          sorting: Boolean(sorting),
-          fadeIn: Boolean(fadeIn),
-          listeners,
+          dragOverlay,
+          dragging,
+          sorting,
+          fadeIn,
+          listeners: listeners || {},
           transition,
           transform,
           value,
-        })
-      ) : (
+        });
+      }
+
+      // Render default item component
+      return (
         <li
-          className={classNames(
-            styles.Wrapper,
-            fadeIn && styles.fadeIn,
-            sorting && styles.sorting,
-            dragOverlay && styles.dragOverlay
-          )}
+          className={classNames(styles.Wrapper, {
+            [styles.fadeIn]: fadeIn,
+            [styles.sorting]: sorting,
+            [styles.dragOverlay]: dragOverlay,
+          })}
           style={
             {
               ...wrapperStyle,
@@ -117,25 +117,28 @@ export const Item = React.memo(
           ref={ref}
         >
           <div
-            className={classNames(
-              styles.Item,
-              dragging && styles.dragging,
-              handle && styles.withHandle,
-              dragOverlay && styles.dragOverlay,
-              disabled && styles.disabled,
-              color && styles.color
-            )}
-            style={{ ...style, backgroundColor: "#FFECDF", maxHeight: "127px", maxWidth: "393px" }}
+            className={classNames(styles.Item, {
+              [styles.dragging]: dragging,
+              [styles.withHandle]: handle,
+              [styles.dragOverlay]: dragOverlay,
+              [styles.disabled]: disabled,
+              [styles.color]: color,
+            })}
+            style={{
+              ...style,
+              backgroundColor: "#FFECDF",
+              maxHeight: "127px",
+              maxWidth: "393px",
+            }}
             data-cypress="draggable-item"
             {...(!handle ? listeners : undefined)}
             {...props}
             tabIndex={!handle ? 0 : undefined}
           >
             <DropdownSelect />
-            Value: {value}
             <span className={styles.Actions}>
-              {onRemove ? <Remove className={styles.Remove} onClick={onRemove} /> : null}
-              {handle ? <Handle {...handleProps} {...listeners} /> : null}
+              {onRemove && <Remove className={styles.Remove} onClick={onRemove} />}
+              {handle && <Handle {...handleProps} {...listeners} />}
             </span>
           </div>
         </li>

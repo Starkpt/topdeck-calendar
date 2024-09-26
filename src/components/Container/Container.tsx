@@ -1,4 +1,4 @@
-import React, { forwardRef } from "react";
+import React, { forwardRef, useMemo } from "react";
 import classNames from "classnames";
 
 import { Handle, Remove } from "../Item";
@@ -12,7 +12,7 @@ export interface Props {
   style?: React.CSSProperties;
   horizontal?: boolean;
   hover?: boolean;
-  handleProps?: React.HTMLAttributes<any>;
+  handleProps?: React.HTMLAttributes<HTMLDivElement | HTMLButtonElement>;
   scrollable?: boolean;
   shadow?: boolean;
   placeholder?: boolean;
@@ -21,59 +21,60 @@ export interface Props {
   onRemove?(): void;
 }
 
-export const Container = forwardRef<HTMLDivElement, Props>(
+export const Container = forwardRef<HTMLDivElement | HTMLButtonElement, Props>(
   (
     {
       children,
       columns = 1,
       handleProps,
-      horizontal,
-      hover,
+      horizontal = false,
+      hover = false,
       onClick,
       onRemove,
       label,
-      placeholder,
+      placeholder = false,
       style,
-      scrollable,
-      shadow,
-      unstyled,
+      scrollable = false,
+      shadow = false,
+      unstyled = false,
       ...props
     }: Props,
     ref
   ) => {
-    const Component = onClick ? "button" : "div";
+    // Memoize the component type to avoid unnecessary re-renders
+    const Component = useMemo(() => (onClick ? "button" : "div"), [onClick]);
 
     return (
       <Component
         {...props}
-        ref={ref}
+        // ref={ref}
+        ref={ref as React.Ref<HTMLButtonElement> & React.Ref<HTMLDivElement>} // Cast ref here
         style={
           {
             ...style,
             "--columns": columns,
           } as React.CSSProperties
         }
-        className={classNames(
-          styles.Container,
-          unstyled && styles.unstyled,
-          horizontal && styles.horizontal,
-          hover && styles.hover,
-          placeholder && styles.placeholder,
-          scrollable && styles.scrollable,
-          shadow && styles.shadow
-        )}
+        className={classNames(styles.Container, {
+          [styles.unstyled]: unstyled,
+          [styles.horizontal]: horizontal,
+          [styles.hover]: hover,
+          [styles.placeholder]: placeholder,
+          [styles.scrollable]: scrollable,
+          [styles.shadow]: shadow,
+        })}
         onClick={onClick}
         tabIndex={onClick ? 0 : undefined}
       >
-        {label ? (
+        {label && (
           <div className={styles.Header}>
             {label}
             <div className={styles.Actions}>
-              {onRemove ? <Remove onClick={onRemove} /> : undefined}
+              {onRemove && <Remove onClick={onRemove} />}
               <Handle {...handleProps} />
             </div>
           </div>
-        ) : null}
+        )}
         {placeholder ? children : <ul>{children}</ul>}
       </Component>
     );

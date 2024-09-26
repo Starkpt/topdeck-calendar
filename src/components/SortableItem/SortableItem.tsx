@@ -1,7 +1,10 @@
 import { useSortable } from "@dnd-kit/sortable";
+
+import { Item } from "../Item";
+
 import { useMountStatus } from "../../hooks/customHooks";
 import { getColor, getIndex } from "../../utils/util";
-import { Item } from "../Item";
+
 import { SortableItemProps } from "./types";
 
 export function SortableItem({
@@ -28,6 +31,7 @@ export function SortableItem({
   } = useSortable({
     id,
   });
+
   const mounted = useMountStatus();
   const mountedWhileDragging = isDragging && !mounted;
 
