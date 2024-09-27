@@ -1,10 +1,7 @@
 import { useSortable } from "@dnd-kit/sortable";
-
 import { Item } from "../Item";
-
 import { useMountStatus } from "../../hooks/customHooks";
 import { getColor, getIndex } from "../../utils/util";
-
 import { SortableItemProps } from "./types";
 
 export function SortableItem({
@@ -20,7 +17,7 @@ export function SortableItem({
 }: SortableItemProps) {
   const {
     setNodeRef,
-    setActivatorNodeRef,
+    setActivatorNodeRef, // This will be used as the ref for the Handle component
     listeners,
     isDragging,
     isSorting,
@@ -28,21 +25,20 @@ export function SortableItem({
     overIndex,
     transform,
     transition,
-  } = useSortable({
-    id,
-  });
+  } = useSortable({ id });
 
   const mounted = useMountStatus();
   const mountedWhileDragging = isDragging && !mounted;
 
   return (
     <Item
-      ref={disabled ? undefined : setNodeRef}
+      ref={disabled ? undefined : setNodeRef} // Set the node reference for the item
       value={id}
       dragging={isDragging}
       sorting={isSorting}
       handle={handle}
-      handleProps={handle ? { ref: setActivatorNodeRef } : undefined}
+      handleProps={handle ? listeners : undefined} // Pass listeners directly as props
+      handleRef={handle ? setActivatorNodeRef : undefined} // Pass the activator ref to the Handle
       index={index}
       wrapperStyle={wrapperStyle({ index })}
       style={style({

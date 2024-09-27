@@ -168,7 +168,7 @@ export default function MultipleContainers({
           <DroppableContainer
             id={PLACEHOLDER_ID}
             disabled={isSortingContainer}
-            items={[]} // No items, this is just a placeholder
+            items={[]}
             onClick={() => dispatch(handleAddColumn())}
             placeholder
           >
@@ -183,7 +183,7 @@ export default function MultipleContainers({
         document.body
       )}
 
-      {trashable && activeId && !containers.includes(activeId) ? <Trash id={TRASH_ID} /> : null}
+      {trashable && activeId && !containers.includes(activeId) && <Trash id={TRASH_ID} />}
     </DndContext>
   );
 }

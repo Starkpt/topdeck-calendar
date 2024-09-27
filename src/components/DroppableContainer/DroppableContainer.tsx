@@ -3,8 +3,8 @@ import { useSortable } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
 import React, { useMemo } from "react";
 
-import { Container, ContainerProps } from "../Container";
 import { animateLayoutChanges } from "../../utils/util";
+import { Container, ContainerProps } from "../Container";
 
 interface DroppableContainerProps extends ContainerProps {
   disabled?: boolean;
@@ -45,18 +45,18 @@ export const DroppableContainer: React.FC<DroppableContainerProps> = ({
   return (
     <Container
       ref={disabled ? undefined : setNodeRef}
+      hover={isOverContainer}
+      columns={columns}
+      handleProps={{
+        ...attributes,
+        ...listeners,
+      }}
       style={{
         ...style,
         transition,
         transform: CSS.Translate.toString(transform),
         opacity: isDragging ? 0.5 : undefined,
       }}
-      hover={isOverContainer}
-      handleProps={{
-        ...attributes,
-        ...listeners,
-      }}
-      columns={columns}
       {...props}
     >
       {children}
