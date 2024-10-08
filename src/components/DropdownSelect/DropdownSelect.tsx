@@ -44,7 +44,7 @@ export default function DropdownSelect(props: Props) {
             justifyContent: "center",
           }}
         >
-          <img src={game.image} style={{ height: "60px" }} alt="game-image" />
+          <img src={game?.image} style={{ height: "60px" }} alt="game-image" />
         </div>
       )}
     />

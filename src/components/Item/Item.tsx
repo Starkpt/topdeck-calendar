@@ -93,6 +93,7 @@ export const Item = React.memo(
         })
       ) : (
         <li
+          ref={ref}
           className={classNames(styles.Wrapper, {
             [styles.fadeIn]: fadeIn,
             [styles.sorting]: sorting,
@@ -110,7 +111,6 @@ export const Item = React.memo(
               "--color": color,
             } as React.CSSProperties
           }
-          ref={ref}
         >
           <div
             className={classNames(styles.Item, {

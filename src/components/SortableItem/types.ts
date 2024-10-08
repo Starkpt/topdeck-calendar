@@ -10,5 +10,5 @@ export interface SortableItemProps {
   disabled?: boolean;
   style(args: any): React.CSSProperties;
   renderItem(): React.ReactElement;
-  wrapperStyle({ index }: { index: number }): React.CSSProperties;
+  wrapperStyles({ index }: { index: number }): React.CSSProperties;
 }

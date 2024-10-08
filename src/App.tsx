@@ -149,7 +149,7 @@ export default function MultipleContainers({
                         index={index}
                         handle={handle}
                         style={getItemStyles}
-                        wrapperStyle={wrapperStyle}
+                        wrapperStyles={wrapperStyle}
                         renderItem={renderItem}
                         containerId={containerId}
                         items={items}
