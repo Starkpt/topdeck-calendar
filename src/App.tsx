@@ -11,21 +11,17 @@ import {
   useSensor,
   useSensors,
 } from "@dnd-kit/core";
-import {
-  horizontalListSortingStrategy,
-  SortableContext,
-  verticalListSortingStrategy,
-} from "@dnd-kit/sortable";
 import { useEffect, useMemo, useRef } from "react";
 import { createPortal } from "react-dom";
 import { shallowEqual, useDispatch, useSelector } from "react-redux";
 import { Dispatch } from "redux";
 
-import { DroppableContainer, SortableItem, Trash } from "./components";
+import { Trash } from "./components";
 import { renderContainerDragOverlay } from "./components/Container/utils";
 import { renderSortableItemDragOverlay } from "./components/SortableItem/utils";
 import { onDragCancel, onDragEnd, onDragOver, onDragStart } from "./components/utils";
-import { handleAddColumn, handleRemove, setContainers } from "./features/data/data";
+import { setContainers } from "./features/data/data";
+import { WeekView } from "./components/WeekView";
 
 import { RootState } from "./store/store";
 
@@ -37,24 +33,15 @@ import {
 } from "./utils/util";
 
 const TRASH_ID = "void";
-const PLACEHOLDER_ID = "placeholder";
 
 export default function MultipleContainers({
   adjustScale = false,
   cancelDrop,
   columns,
   handle = false,
-  containerStyle,
   coordinateGetter = multipleContainersCoordinateGetter,
-  getItemStyles = () => ({}),
-  wrapperStyle = () => ({}),
-  minimal = false,
   modifiers,
-  renderItem,
-  strategy = verticalListSortingStrategy,
   trashable = true,
-  vertical = false,
-  scrollable,
 }: Props) {
   const { items, activeId, containers } = useSelector(
     (state: RootState) => state.data,
@@ -65,7 +52,6 @@ export default function MultipleContainers({
   const initialized = useRef<boolean>(false);
   const lastOverId = useRef<UniqueIdentifier | null>(null);
   const recentlyMovedToNewContainer = useRef<boolean>(false);
-  const isSortingContainer = activeId ? containers.includes(activeId) : false;
 
   // Set up initial containers
   useEffect(() => {
@@ -111,71 +97,8 @@ export default function MultipleContainers({
       modifiers={modifiers}
       measuring={{ droppable: { strategy: MeasuringStrategy.Always } }}
     >
-      <div
-        style={{
-          display: "inline-grid",
-          boxSizing: "border-box",
-          padding: 20,
-          gridAutoFlow: vertical ? "row" : "column",
-        }}
-      >
-        <SortableContext
-          items={containers.filter((containerId) => containerId !== PLACEHOLDER_ID)} // Exclude PLACEHOLDER_ID
-          strategy={vertical ? verticalListSortingStrategy : horizontalListSortingStrategy}
-        >
-          {containers.map((containerId) => {
-            if (containerId === PLACEHOLDER_ID) {
-              return null; // Skip rendering as a sortable container
-            }
+      <WeekView columns={columns} vertical={undefined} />
 
-            return (
-              <DroppableContainer
-                key={containerId}
-                id={containerId}
-                label={minimal ? undefined : `Column ${containerId}`}
-                columns={columns}
-                items={items[containerId]}
-                scrollable={scrollable}
-                style={containerStyle}
-                unstyled={minimal}
-                onRemove={() => dispatch(handleRemove(containerId))}
-              >
-                <SortableContext items={items[containerId]} strategy={strategy}>
-                  {items[containerId]?.length ? (
-                    items[containerId]?.map((value, index) => (
-                      <SortableItem
-                        key={value}
-                        id={value}
-                        index={index}
-                        handle={handle}
-                        style={getItemStyles}
-                        wrapperStyles={wrapperStyle}
-                        renderItem={renderItem}
-                        containerId={containerId}
-                        items={items}
-                        disabled={isSortingContainer}
-                      />
-                    ))
-                  ) : (
-                    <div>
-                      <p>Nothing to see</p>
-                    </div>
-                  )}
-                </SortableContext>
-              </DroppableContainer>
-            );
-          })}
-          <DroppableContainer
-            id={PLACEHOLDER_ID}
-            disabled={isSortingContainer}
-            items={[]}
-            onClick={() => dispatch(handleAddColumn())}
-            placeholder
-          >
-            + Add column
-          </DroppableContainer>
-        </SortableContext>
-      </div>
       {createPortal(
         <DragOverlay adjustScale={adjustScale} dropAnimation={dropAnimation}>
           {dragOverlayContent}

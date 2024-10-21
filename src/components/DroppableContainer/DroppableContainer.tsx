@@ -13,7 +13,7 @@ interface DroppableContainerProps extends ContainerProps {
   style?: React.CSSProperties;
 }
 
-export const DroppableContainer: React.FC<DroppableContainerProps> = ({
+export const DroppableContainer = ({
   children,
   columns = 1,
   disabled,
@@ -21,7 +21,7 @@ export const DroppableContainer: React.FC<DroppableContainerProps> = ({
   items,
   style,
   ...props
-}) => {
+}: DroppableContainerProps) => {
   const { active, attributes, isDragging, listeners, over, setNodeRef, transition, transform } =
     useSortable({
       id,
