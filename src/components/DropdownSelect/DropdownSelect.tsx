@@ -116,7 +116,6 @@ export default function DropdownSelect({
         {...(!handle ? listeners : undefined)} // Attach listeners only if handle is not specified
         // {...props}
       >
-        {" "}
         <Select
           // {...props}
           // menuPortalTarget={ref?.current} // Target the ref as the portal target

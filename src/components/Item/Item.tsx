@@ -131,7 +131,9 @@ export const Item = React.memo(
             {...(!handle ? listeners : undefined)} // Attach listeners only if handle is not specified
             {...props}
           >
-            <DropdownSelect />
+            <ul>
+              <DropdownSelect />
+            </ul>
             <span className={styles.Actions}>
               {onRemove ? <Remove className={styles.Remove} onClick={onRemove} /> : null}
               {handle ? <Handle ref={handleRef} {...handleProps} /> : null}

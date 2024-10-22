@@ -24,12 +24,12 @@ export const WeekView = ({
   scrollable,
   minimal = false,
 }: Props) => {
+  const dispatch = useDispatch<Dispatch>();
+
   const { items, activeId, containers } = useSelector(
     (state: RootState) => state.data,
     shallowEqual
   );
-
-  const dispatch = useDispatch<Dispatch>();
 
   const isSortingContainer = activeId ? containers.includes(activeId) : false;
 

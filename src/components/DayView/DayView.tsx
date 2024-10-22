@@ -67,7 +67,7 @@ export function DayView({
             id={id}
             key={index}
             value={value}
-            containerId={""}
+            containerId={value}
             items={items}
             handle={false}
           />
