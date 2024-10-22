@@ -9,7 +9,7 @@ import { handleAddColumn, handleRemove } from "../../features/data/data";
 import { RootState } from "../../store/store";
 import { Props } from "../../types/types";
 import { DroppableContainer } from "../DroppableContainer";
-import { SortableItem } from "../SortableItem";
+import { DayView } from "../DayView";
 
 const PLACEHOLDER_ID = "placeholder";
 
@@ -20,7 +20,6 @@ export const WeekView = ({
   getItemStyles = () => ({}),
   wrapperStyle = () => ({}),
   renderItem,
-  strategy = verticalListSortingStrategy,
   vertical = false,
   scrollable,
   minimal = false,
@@ -64,28 +63,17 @@ export const WeekView = ({
               unstyled={minimal}
               onRemove={() => dispatch(handleRemove(containerId))}
             >
-              <SortableContext items={items[containerId]} strategy={strategy}>
-                {items[containerId]?.length ? (
-                  items[containerId]?.map((value, index) => (
-                    <SortableItem
-                      key={value}
-                      id={value}
-                      index={index}
-                      handle={handle}
-                      style={getItemStyles}
-                      wrapperStyles={wrapperStyle}
-                      renderItem={renderItem}
-                      containerId={containerId}
-                      items={items}
-                      disabled={isSortingContainer}
-                    />
-                  ))
-                ) : (
-                  <div>
-                    <p>No events</p>
-                  </div>
-                )}
-              </SortableContext>
+              <DayView
+                id={containerId}
+                value={containerId}
+                handle={handle}
+                style={getItemStyles}
+                wrapperStyles={wrapperStyle}
+                renderItem={renderItem}
+                containerId={containerId}
+                items={items}
+                disabled={isSortingContainer}
+              />
             </DroppableContainer>
           );
         })}

@@ -18,10 +18,10 @@ import { Dispatch } from "redux";
 
 import { Trash } from "./components";
 import { renderContainerDragOverlay } from "./components/Container/utils";
-import { renderSortableItemDragOverlay } from "./components/SortableItem/utils";
+import { renderSortableItemDragOverlay } from "./components/DayView/utils";
 import { onDragCancel, onDragEnd, onDragOver, onDragStart } from "./components/utils";
-import { setContainers } from "./features/data/data";
 import { WeekView } from "./components/WeekView";
+import { setContainers } from "./features/data/data";
 
 import { RootState } from "./store/store";
 
@@ -97,7 +97,7 @@ export default function MultipleContainers({
       modifiers={modifiers}
       measuring={{ droppable: { strategy: MeasuringStrategy.Always } }}
     >
-      <WeekView columns={columns} vertical={undefined} />
+      <WeekView columns={columns} />
 
       {createPortal(
         <DragOverlay adjustScale={adjustScale} dropAnimation={dropAnimation}>
