@@ -10,8 +10,6 @@ export function renderContainerDragOverlay({
   columns,
   handle = false,
   getItemStyles = () => ({}),
-  wrapperStyle = () => ({}),
-  renderItem,
 }: {
   containerId: UniqueIdentifier;
   items: Items;
@@ -27,15 +25,12 @@ export function renderContainerDragOverlay({
     isDragOverlay: boolean;
   }): React.CSSProperties;
   wrapperStyle?(args: { index: number }): React.CSSProperties;
-  renderItem?: any;
 }) {
   return (
     <Container
       label={`Column ${containerId}`}
       columns={columns}
-      style={{
-        height: "100%",
-      }}
+      style={{ height: "100%" }}
       shadow
       unstyled={false}
     >
@@ -54,8 +49,6 @@ export function renderContainerDragOverlay({
             isDragOverlay: false,
           })}
           color={getColor(item)}
-          wrapperStyle={wrapperStyle({ index })}
-          renderItem={renderItem}
         />
       ))}
     </Container>

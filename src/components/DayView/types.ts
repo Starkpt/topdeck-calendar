@@ -12,7 +12,5 @@ export interface SortableItemProps {
   value: UniqueIdentifier;
   // strategy: SortingStrategy;
   style?(args: any): React.CSSProperties;
-  styles?(args: any): React.CSSProperties;
-  renderItem?(): React.ReactElement;
-  wrapperStyles?({ index }: { index: number }): React.CSSProperties;
+  wrapperStyles?: React.CSSProperties;
 }

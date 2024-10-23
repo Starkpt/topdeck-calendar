@@ -22,22 +22,21 @@ interface Props {
   sorting?: boolean;
   style?: React.CSSProperties;
   transition?: string | null;
-  wrapperStyle?: React.CSSProperties;
   value: React.ReactNode;
   onRemove?(): void;
-  renderItem?(args: {
-    dragOverlay: boolean;
-    dragging: boolean;
-    sorting: boolean;
-    index: number | undefined;
-    fadeIn: boolean;
-    listeners: DraggableSyntheticListeners;
-    ref: React.Ref<HTMLElement>;
-    style: React.CSSProperties | undefined;
-    transform: Props["transform"];
-    transition: Props["transition"];
-    value: Props["value"];
-  }): React.ReactElement;
+  // renderItem?(args: {
+  //   dragOverlay: boolean;
+  //   dragging: boolean;
+  //   sorting: boolean;
+  //   index: number | undefined;
+  //   fadeIn: boolean;
+  //   listeners: DraggableSyntheticListeners;
+  //   ref: React.Ref<HTMLElement>;
+  //   style: React.CSSProperties | undefined;
+  //   transform: Props["transform"];
+  //   transition: Props["transition"];
+  //   value: Props["value"];
+  // }): React.ReactElement;
 }
 
 export const Item = React.memo(
@@ -56,13 +55,10 @@ export const Item = React.memo(
         index,
         listeners,
         onRemove,
-        renderItem,
         sorting,
         style,
         transition,
         transform,
-        value,
-        wrapperStyle,
         ...props
       },
       ref
@@ -77,21 +73,7 @@ export const Item = React.memo(
         };
       }, [dragOverlay]);
 
-      return renderItem ? (
-        renderItem({
-          ref,
-          index,
-          style,
-          dragOverlay: Boolean(dragOverlay),
-          dragging: Boolean(dragging),
-          sorting: Boolean(sorting),
-          fadeIn: Boolean(fadeIn),
-          listeners,
-          transition,
-          transform,
-          value,
-        })
-      ) : (
+      return (
         <li
           ref={ref}
           className={classNames(styles.Wrapper, {
@@ -99,18 +81,18 @@ export const Item = React.memo(
             [styles.sorting]: sorting,
             [styles.dragOverlay]: dragOverlay,
           })}
-          style={
-            {
-              ...wrapperStyle,
-              transition: [transition, wrapperStyle?.transition].filter(Boolean).join(", "),
-              "--translate-x": transform ? `${Math.round(transform.x)}px` : undefined,
-              "--translate-y": transform ? `${Math.round(transform.y)}px` : undefined,
-              "--scale-x": transform?.scaleX ? `${transform.scaleX}` : undefined,
-              "--scale-y": transform?.scaleY ? `${transform.scaleY}` : undefined,
-              "--index": index,
-              "--color": color,
-            } as React.CSSProperties
-          }
+          // style={
+          //   {
+          //     ...wrapperStyle,
+          //     transition: [transition, wrapperStyle?.transition].filter(Boolean).join(", "),
+          //     "--translate-x": transform ? `${Math.round(transform.x)}px` : undefined,
+          //     "--translate-y": transform ? `${Math.round(transform.y)}px` : undefined,
+          //     "--scale-x": transform?.scaleX ? `${transform.scaleX}` : undefined,
+          //     "--scale-y": transform?.scaleY ? `${transform.scaleY}` : undefined,
+          //     "--index": index,
+          //     "--color": color,
+          //   } as React.CSSProperties
+          // }
         >
           <div
             className={classNames(styles.Item, {

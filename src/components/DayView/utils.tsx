@@ -8,8 +8,6 @@ export function renderSortableItemDragOverlay({
   items,
   handle = false,
   getItemStyles = () => ({}),
-  wrapperStyle = () => ({}),
-  renderItem,
 }: {
   id: UniqueIdentifier;
   items: Items;
@@ -24,7 +22,6 @@ export function renderSortableItemDragOverlay({
     isDragOverlay: boolean;
   }): React.CSSProperties;
   wrapperStyle?(args: { index: number }): React.CSSProperties;
-  renderItem?: any;
 }) {
   return (
     <Item
@@ -40,8 +37,6 @@ export function renderSortableItemDragOverlay({
         isDragOverlay: true,
       })}
       color={getColor(id)}
-      wrapperStyle={wrapperStyle({ index: 0 })}
-      renderItem={renderItem}
       dragOverlay
     />
   );

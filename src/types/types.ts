@@ -18,7 +18,6 @@ export interface Props {
     isSorting: boolean;
     isDragOverlay: boolean;
   }): React.CSSProperties;
-  wrapperStyle?(args: { index: number }): React.CSSProperties;
   items?: Items;
   handle?: boolean;
   renderItem?: any;

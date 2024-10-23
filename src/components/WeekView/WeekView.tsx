@@ -18,8 +18,6 @@ export const WeekView = ({
   handle = false,
   containerStyle,
   getItemStyles = () => ({}),
-  wrapperStyle = () => ({}),
-  renderItem,
   vertical = false,
   scrollable,
   minimal = false,
@@ -68,8 +66,6 @@ export const WeekView = ({
                 value={containerId}
                 handle={handle}
                 style={getItemStyles}
-                wrapperStyles={wrapperStyle}
-                renderItem={renderItem}
                 containerId={containerId}
                 items={items}
                 disabled={isSortingContainer}
