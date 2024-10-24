@@ -28,11 +28,10 @@ export default function DropdownSelect({
   // value,
   id,
   index,
-  handle,
-  style,
   wrapperStyles,
 }: SortableItemProps) {
   const [isDisabled, setIsDisabled] = useState<boolean>(false);
+  const [handle, setHandle] = useState<boolean>(false);
   const games: Game[] = [
     { label: "Dragon Ball Super W", value: "dbsw", image: "/dbsw.png" },
     { label: "Dragon Ball Super B", value: "dbsb", image: "/dbsb.png" },
@@ -106,7 +105,6 @@ export default function DropdownSelect({
           [styles.color]: color,
         })}
         style={{
-          ...style,
           backgroundColor: "#FFECDF",
           maxHeight: "127px",
           maxWidth: "393px",

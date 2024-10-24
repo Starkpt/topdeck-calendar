@@ -1,7 +1,6 @@
 import React, { forwardRef, CSSProperties } from "react";
 import classNames from "classnames";
 
-//@ts-ignore
 import styles from "./Action.module.css";
 
 export interface Props extends React.HTMLAttributes<HTMLButtonElement> {
@@ -25,7 +24,7 @@ export const Action = forwardRef<HTMLButtonElement, Props>(
             ...style,
             cursor,
             "--fill": active?.fill,
-            "--background": active?.background
+            "--background": active?.background,
           } as CSSProperties
         }
       />

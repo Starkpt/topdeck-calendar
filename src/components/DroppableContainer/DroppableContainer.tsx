@@ -25,10 +25,7 @@ export const DroppableContainer = ({
   const { active, attributes, isDragging, listeners, over, setNodeRef, transition, transform } =
     useSortable({
       id,
-      data: {
-        type: "container",
-        children: items,
-      },
+      data: { type: "container", children: items },
       animateLayoutChanges,
     });
 
@@ -47,10 +44,7 @@ export const DroppableContainer = ({
       ref={disabled ? undefined : setNodeRef}
       hover={isOverContainer}
       columns={columns}
-      handleProps={{
-        ...attributes,
-        ...listeners,
-      }}
+      handleProps={{ ...attributes, ...listeners }}
       style={{
         ...style,
         transition,

@@ -15,9 +15,7 @@ const PLACEHOLDER_ID = "placeholder";
 
 export const WeekView = ({
   columns,
-  handle = false,
   containerStyle,
-  getItemStyles = () => ({}),
   vertical = false,
   scrollable,
   minimal = false,
@@ -64,8 +62,6 @@ export const WeekView = ({
               <DayView
                 id={containerId}
                 value={containerId}
-                handle={handle}
-                style={getItemStyles}
                 containerId={containerId}
                 items={items}
                 disabled={isSortingContainer}
