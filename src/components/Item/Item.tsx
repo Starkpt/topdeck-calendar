@@ -5,6 +5,8 @@ import React, { useEffect } from "react";
 import { Handle, Remove } from "./components"; // Assume Handle is your drag handle component
 import styles from "./Item.module.css";
 import DropdownSelect from "../DropdownSelect/DropdownSelect";
+import { shallowEqual, useSelector } from "react-redux";
+import { RootState } from "../../store/store";
 
 interface Props {
   dragOverlay?: boolean;
@@ -24,19 +26,6 @@ interface Props {
   transition?: string | null;
   value: React.ReactNode;
   onRemove?(): void;
-  // renderItem?(args: {
-  //   dragOverlay: boolean;
-  //   dragging: boolean;
-  //   sorting: boolean;
-  //   index: number | undefined;
-  //   fadeIn: boolean;
-  //   listeners: DraggableSyntheticListeners;
-  //   ref: React.Ref<HTMLElement>;
-  //   style: React.CSSProperties | undefined;
-  //   transform: Props["transform"];
-  //   transition: Props["transition"];
-  //   value: Props["value"];
-  // }): React.ReactElement;
 }
 
 export const Item = React.memo(
@@ -73,6 +62,9 @@ export const Item = React.memo(
         };
       }, [dragOverlay]);
 
+      // Access state context
+      const { items } = useSelector((state: RootState) => state.data, shallowEqual);
+
       return (
         <li
           ref={ref}
@@ -81,18 +73,18 @@ export const Item = React.memo(
             [styles.sorting]: sorting,
             [styles.dragOverlay]: dragOverlay,
           })}
-          // style={
-          //   {
-          //     ...wrapperStyle,
-          //     transition: [transition, wrapperStyle?.transition].filter(Boolean).join(", "),
-          //     "--translate-x": transform ? `${Math.round(transform.x)}px` : undefined,
-          //     "--translate-y": transform ? `${Math.round(transform.y)}px` : undefined,
-          //     "--scale-x": transform?.scaleX ? `${transform.scaleX}` : undefined,
-          //     "--scale-y": transform?.scaleY ? `${transform.scaleY}` : undefined,
-          //     "--index": index,
-          //     "--color": color,
-          //   } as React.CSSProperties
-          // }
+          style={
+            {
+              ...styles,
+              transition: [transition, styles?.transition].filter(Boolean).join(", "),
+              "--translate-x": transform ? `${Math.round(transform.x)}px` : undefined,
+              "--translate-y": transform ? `${Math.round(transform.y)}px` : undefined,
+              "--scale-x": transform?.scaleX ? `${transform.scaleX}` : undefined,
+              "--scale-y": transform?.scaleY ? `${transform.scaleY}` : undefined,
+              "--index": index,
+              "--color": color,
+            } as React.CSSProperties
+          }
         >
           <div
             className={classNames(styles.Item, {
@@ -114,7 +106,12 @@ export const Item = React.memo(
             {...props}
           >
             <ul>
-              <DropdownSelect />
+              <DropdownSelect
+                containerId={"no-container"}
+                id={"no-id"}
+                items={items}
+                value={"no-value"}
+              />
             </ul>
             <span className={styles.Actions}>
               {onRemove ? <Remove className={styles.Remove} onClick={onRemove} /> : null}

@@ -1,15 +1,17 @@
+import { UniqueIdentifier } from "@dnd-kit/core";
 import {
   horizontalListSortingStrategy,
   SortableContext,
   verticalListSortingStrategy,
 } from "@dnd-kit/sortable";
+import { useCallback, useMemo } from "react";
 import { shallowEqual, useDispatch, useSelector } from "react-redux";
 import { Dispatch } from "redux";
 import { handleAddColumn, handleRemove } from "../../features/data/data";
 import { RootState } from "../../store/store";
-import { Props } from "../../types/types";
-import { DroppableContainer } from "../DroppableContainer";
 import { DayView } from "../DayView";
+import { DroppableContainer } from "../DroppableContainer";
+import { WeekViewProps } from "./types";
 
 const PLACEHOLDER_ID = "placeholder";
 
@@ -19,45 +21,62 @@ export const WeekView = ({
   vertical = false,
   scrollable,
   minimal = false,
-}: Props) => {
+  containerRef,
+}: WeekViewProps) => {
   const dispatch = useDispatch<Dispatch>();
 
+  // Access state context
   const { items, activeId, containers } = useSelector(
     (state: RootState) => state.data,
     shallowEqual
   );
 
-  const isSortingContainer = activeId ? containers.includes(activeId) : false;
+  // Determine if currently sorting a container
+  const isSortingContainer = useMemo(
+    () => (activeId ? containers.includes(activeId) : false),
+    [activeId, containers]
+  );
+
+  // Filtered containers for SortableContext
+  const filteredContainers = useMemo(
+    () => containers.filter((containerId) => containerId !== PLACEHOLDER_ID),
+    [containers]
+  );
+
+  // Determine strategy based on vertical prop
+  const sortingStrategy = vertical ? verticalListSortingStrategy : horizontalListSortingStrategy;
+
+  // Memoized callback for adding and removing columns
+  const handleAddColumnClick = useCallback(() => dispatch(handleAddColumn()), [dispatch]);
+  const handleRemoveColumn = useCallback(
+    (containerId: UniqueIdentifier) => () => dispatch(handleRemove(containerId)),
+    [dispatch]
+  );
+
+  // Inline styles moved out of JSX for readability
+  const containerGridStyle = {
+    display: "inline-grid",
+    padding: 20,
+    gridAutoFlow: vertical ? "row" : "column",
+  };
 
   return (
-    <div
-      style={{
-        display: "inline-grid",
-        boxSizing: "border-box",
-        padding: 20,
-        gridAutoFlow: vertical ? "row" : "column",
-      }}
-    >
-      <SortableContext
-        items={containers.filter((containerId) => containerId !== PLACEHOLDER_ID)} // Exclude PLACEHOLDER_ID
-        strategy={vertical ? verticalListSortingStrategy : horizontalListSortingStrategy}
-      >
+    <div style={containerGridStyle}>
+      <SortableContext items={filteredContainers} strategy={sortingStrategy}>
         {containers.map((containerId) => {
-          if (containerId === PLACEHOLDER_ID) {
-            return null; // Skip rendering as a sortable container
-          }
+          if (containerId === PLACEHOLDER_ID) return null; // Skip placeholder in the map loop
 
           return (
             <DroppableContainer
               key={containerId}
               id={containerId}
-              label={minimal ? undefined : `Column ${containerId}`}
+              label={!minimal ? `Column ${containerId}` : undefined}
               columns={columns}
               items={items[containerId]}
               scrollable={scrollable}
               style={containerStyle}
               unstyled={minimal}
-              onRemove={() => dispatch(handleRemove(containerId))}
+              onRemove={handleRemoveColumn(containerId)}
             >
               <DayView
                 id={containerId}
@@ -65,16 +84,18 @@ export const WeekView = ({
                 containerId={containerId}
                 items={items}
                 disabled={isSortingContainer}
+                containerRef={containerRef}
               />
             </DroppableContainer>
           );
         })}
 
+        {/* Add column button as a DroppableContainer */}
         <DroppableContainer
           id={PLACEHOLDER_ID}
           disabled={isSortingContainer}
           items={[]}
-          onClick={() => dispatch(handleAddColumn())}
+          onClick={handleAddColumnClick}
           placeholder
         >
           + Add column

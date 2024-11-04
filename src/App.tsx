@@ -1,7 +1,6 @@
 import {
   CollisionDetection,
   DndContext,
-  DragOverEvent,
   DragOverlay,
   KeyboardSensor,
   MeasuringStrategy,
@@ -24,13 +23,9 @@ import { WeekView } from "./components/WeekView";
 import { setContainers } from "./features/data/data";
 
 import { RootState } from "./store/store";
-
 import useCollisionDetection from "./components/useCollisionDetection";
-import { Props } from "./types/types";
-import {
-  dropAnimation,
-  coordinateGetter as multipleContainersCoordinateGetter,
-} from "./utils/util";
+import { AppProps } from "./types/types";
+import { dropAnimation, coordinateGetter as defaultCoordinateGetter } from "./utils/util";
 
 const TRASH_ID = "void";
 
@@ -39,10 +34,10 @@ export default function MultipleContainers({
   cancelDrop,
   columns,
   handle = false,
-  coordinateGetter = multipleContainersCoordinateGetter,
+  coordinateGetter = defaultCoordinateGetter,
   modifiers,
   trashable = true,
-}: Props) {
+}: AppProps) {
   const { items, activeId, containers } = useSelector(
     (state: RootState) => state.data,
     shallowEqual
@@ -53,7 +48,7 @@ export default function MultipleContainers({
   const lastOverId = useRef<UniqueIdentifier | null>(null);
   const recentlyMovedToNewContainer = useRef<boolean>(false);
 
-  // Set up initial containers
+  // Initialize containers on mount
   useEffect(() => {
     if (!initialized.current) {
       dispatch(setContainers(Object.keys(items)));
@@ -61,22 +56,25 @@ export default function MultipleContainers({
     }
   }, [items, dispatch]);
 
-  // Reset recentlyMovedToNewContainer ref
+  // Reset recentlyMovedToNewContainer on activeId change
   useEffect(() => {
     recentlyMovedToNewContainer.current = false;
   }, [activeId]);
 
+  // Custom collision detection strategy
   const collisionDetectionStrategy: CollisionDetection = useCollisionDetection(
     recentlyMovedToNewContainer,
     lastOverId
   );
 
+  // Define sensors with activation constraints
   const sensors = useSensors(
     useSensor(MouseSensor, { activationConstraint: { delay: 100, tolerance: 5 } }),
     useSensor(TouchSensor),
     useSensor(KeyboardSensor, { coordinateGetter })
   );
 
+  // Memoize drag overlay content to avoid unnecessary re-renders
   const dragOverlayContent = useMemo(() => {
     if (!activeId) return null;
 
@@ -90,7 +88,7 @@ export default function MultipleContainers({
       sensors={sensors}
       collisionDetection={collisionDetectionStrategy}
       onDragStart={onDragStart}
-      onDragOver={(event: DragOverEvent) => onDragOver(event, recentlyMovedToNewContainer)}
+      onDragOver={(event) => onDragOver(event, recentlyMovedToNewContainer)}
       onDragEnd={onDragEnd}
       onDragCancel={onDragCancel}
       cancelDrop={cancelDrop}

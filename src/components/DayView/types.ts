@@ -8,6 +8,7 @@ export interface SortableItemProps {
   index?: number;
   disabled?: boolean;
   value: UniqueIdentifier;
+  containerRef?: React.Ref<HTMLDivElement>;
   // strategy: SortingStrategy;
   wrapperStyles?: React.CSSProperties;
 }

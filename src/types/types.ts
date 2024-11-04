@@ -3,7 +3,7 @@ import { SortingStrategy } from "@dnd-kit/sortable";
 
 export type Items = Record<UniqueIdentifier, UniqueIdentifier[]>;
 
-export interface Props {
+export interface AppProps {
   adjustScale?: boolean;
   cancelDrop?: CancelDrop;
   columns?: number;
@@ -20,11 +20,11 @@ export interface Props {
   }): React.CSSProperties;
   items?: Items;
   handle?: boolean;
-  renderItem?: any;
   strategy?: SortingStrategy;
   modifiers?: Modifiers;
   minimal?: boolean;
   trashable?: boolean;
   scrollable?: boolean;
   vertical?: boolean;
+  containerRef?: React.Ref<HTMLDivElement>;
 }

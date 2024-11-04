@@ -2,7 +2,7 @@ import { SortableContext, verticalListSortingStrategy } from "@dnd-kit/sortable"
 import DropdownSelect from "../DropdownSelect/DropdownSelect";
 import { SortableItemProps } from "./types";
 
-export function DayView({ id, items, containerId }: SortableItemProps) {
+export function DayView({ id, items, containerId, containerRef }: SortableItemProps) {
   return (
     <SortableContext items={items[containerId]} strategy={verticalListSortingStrategy}>
       {items[containerId]?.length ? (
@@ -13,7 +13,7 @@ export function DayView({ id, items, containerId }: SortableItemProps) {
             value={value}
             containerId={value}
             items={items}
-            handle={false}
+            containerRef={containerRef}
           />
         ))
       ) : (

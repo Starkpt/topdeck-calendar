@@ -1,124 +1,104 @@
 import { useSortable } from "@dnd-kit/sortable";
 import classNames from "classnames";
-import { useEffect, useState } from "react";
+import { useEffect, useMemo } from "react";
 import Select, { StylesConfig } from "react-select";
 import { useMountStatus } from "../../hooks/customHooks";
 import { getColor } from "../../utils/util";
 import { SortableItemProps } from "../DayView/types";
 import styles from "../Item/Item.module.css";
 
-const dotStyles: StylesConfig = {
+type Game = { label: string; value: string; image: string };
+
+const games: Game[] = [
+  { label: "Dragon Ball Super W", value: "dbsw", image: "/dbsw.png" },
+  { label: "Dragon Ball Super B", value: "dbsb", image: "/dbsb.png" },
+  { label: "Magic: the Gathering", value: "mtg", image: "/mtg.png" },
+  { label: "Flesh & Blood", value: "fab", image: "/fab.png" },
+  { label: "Yu-Gi-Oh!", value: "ygo", image: "/ygu.png" },
+  { label: "Vanguard", value: "vng", image: "/vng.png" },
+  { label: "One Piece", value: "op", image: "/op.png" },
+  { label: "Pokémon", value: "pkm", image: "/pkm.png" },
+  { label: "Lorcana", value: "lcn", image: "/lcn.png" },
+];
+
+const dotStyles: StylesConfig<Game> = {
   control: (styles) => ({ ...styles, backgroundColor: "white" }),
   option: (styles) => ({ ...styles, backgroundColor: "white" }),
   input: (styles) => ({ ...styles, height: "80px" }),
-  placeholder: (styles) => ({ ...styles }),
   singleValue: (styles) => ({ ...styles, width: "100%" }),
   container: (styles) => ({ ...styles, width: "100%" }),
   // menu: (styles) => ({ ...styles, backgroundColor: "black", position: "relative" }),
   menuPortal: (styles) => ({ ...styles, zIndex: 99999 }),
 };
 
-type Game = { label: string; value: string; image: string };
-
 export default function DropdownSelect({
-  // containerId,
-  // styles,
-  // strategy,
-  // items,
-  // value,
   id,
   index,
   wrapperStyles,
+  containerRef,
 }: SortableItemProps) {
-  const [isDisabled, setIsDisabled] = useState<boolean>(false);
-  const [handle, setHandle] = useState<boolean>(false);
-  const games: Game[] = [
-    { label: "Dragon Ball Super W", value: "dbsw", image: "/dbsw.png" },
-    { label: "Dragon Ball Super B", value: "dbsb", image: "/dbsb.png" },
-    { label: "Magic: the Gathering", value: "mtg", image: "/mtg.png" },
-    { label: "Flesh & Blood", value: "fab", image: "/fab.png" },
-    { label: "Yu-Gi-Oh!", value: "ygo", image: "/ygu.png" },
-    { label: "Vanguard", value: "vng", image: "/vng.png" },
-    { label: "One Piece", value: "op", image: "/op.png" },
-    { label: "Pokémon", value: "pkm", image: "/pkm.png" },
-    { label: "Lorcana", value: "lcn", image: "/lcn.png" },
-  ];
-
-  const {
-    setNodeRef,
-    setActivatorNodeRef, // This will be used as the ref for the Handle component
-    listeners,
-    isDragging,
-    isSorting,
-    over,
-    overIndex,
-    transform,
-    transition,
-  } = useSortable({ id });
+  const { setNodeRef, listeners, isDragging, isSorting, transform, transition } = useSortable({
+    id,
+  });
 
   const mounted = useMountStatus();
-  const mountedWhileDragging = isDragging && !mounted;
+  const color = useMemo(() => getColor(id), [id]);
+  const fadeIn = isDragging && !mounted;
 
-  const fadeIn = mountedWhileDragging;
-  const sorting = isSorting;
-  const dragging = isDragging;
-  const dragOverlay = true;
-  const color = getColor(id);
-
+  // Update cursor style when dragging
   useEffect(() => {
-    if (!dragOverlay) return;
+    if (isDragging) {
+      document.body.style.cursor = "grabbing";
 
-    document.body.style.cursor = "grabbing";
+      return () => {
+        document.body.style.cursor = "";
+      };
+    }
+  }, [isDragging]);
 
-    return () => {
-      document.body.style.cursor = "";
-    };
-  }, [dragOverlay]);
+  const computedStyle: React.CSSProperties & { [key: string]: string | number | undefined } = {
+    ...wrapperStyles,
+    transition: [transition, wrapperStyles?.transition].filter(Boolean).join(", "),
+    "--translate-x": transform ? `${Math.round(transform.x)}px` : undefined,
+    "--translate-y": transform ? `${Math.round(transform.y)}px` : undefined,
+    "--scale-x": transform?.scaleX ? `${transform.scaleX}` : undefined,
+    "--scale-y": transform?.scaleY ? `${transform.scaleY}` : undefined,
+    "--index": index,
+    "--color": color,
+  };
+
+  // Class names using helper function for readability
+  const wrapperClassNames = classNames(styles.Wrapper, {
+    [styles.fadeIn]: fadeIn,
+    [styles.sorting]: isSorting,
+    [styles.dragOverlay]: isDragging,
+  });
+
+  const itemClassNames = classNames(styles.Item, {
+    [styles.dragging]: isDragging,
+    [styles.color]: color,
+  });
 
   return (
-    <li
-      ref={isDisabled ? undefined : setNodeRef}
-      className={classNames(styles.Wrapper, {
-        [styles.fadeIn]: fadeIn,
-        [styles.sorting]: sorting,
-        [styles.dragOverlay]: dragOverlay,
-      })}
-      style={
-        {
-          ...wrapperStyles,
-          transition: [transition, wrapperStyles?.transition].filter(Boolean).join(", "),
-          "--translate-x": transform ? `${Math.round(transform.x)}px` : undefined,
-          "--translate-y": transform ? `${Math.round(transform.y)}px` : undefined,
-          "--scale-x": transform?.scaleX ? `${transform.scaleX}` : undefined,
-          "--scale-y": transform?.scaleY ? `${transform.scaleY}` : undefined,
-          "--index": index,
-          "--color": color,
-        } as React.CSSProperties
-      }
-    >
+    <li ref={setNodeRef} className={wrapperClassNames} style={computedStyle}>
       <div
-        className={classNames(styles.Item, {
-          [styles.dragging]: dragging,
-          [styles.withHandle]: handle,
-          [styles.dragOverlay]: dragOverlay,
-          [styles.disabled]: isDisabled,
-          [styles.color]: color,
-        })}
+        className={itemClassNames}
         style={{
           backgroundColor: "#FFECDF",
           maxHeight: "127px",
           maxWidth: "393px",
         }}
         data-cypress="draggable-item"
-        tabIndex={!handle ? 0 : undefined}
-        {...(!handle ? listeners : undefined)} // Attach listeners only if handle is not specified
+        tabIndex={0}
+        {...listeners}
       >
         <Select
-          // menuPortalTarget={ref?.current} // Target the ref as the portal target
+          menuPlacement="auto"
+          maxMenuHeight={200}
+          menuPortalTarget={containerRef?.current || document.body} // Defaults to `document.body` if ref is undefined
           styles={dotStyles}
           options={games}
           defaultValue={games[1]}
-          formatGroupLabel={(e) => <p>{e.label}</p>}
           formatOptionLabel={(game) => (
             <div
               className="game-option"
@@ -129,10 +109,11 @@ export default function DropdownSelect({
                 justifyContent: "center",
               }}
             >
-              <img src={game?.image} style={{ height: "60px" }} alt="game-image" />
+              <img src={game.image} style={{ height: "60px" }} alt={`${game.label}-image`} />
             </div>
           )}
         />
+
         {/* 
           <span className={styles.Actions}>
             {onRemove ? <Remove className={styles.Remove} onClick={onRemove} /> : null}
