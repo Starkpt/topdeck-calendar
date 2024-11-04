@@ -15,21 +15,12 @@ interface DroppableContainerProps extends ContainerProps {
 
 export const DroppableContainer = forwardRef<HTMLDivElement, DroppableContainerProps>(
   ({ children, columns = 1, disabled, id, items, style, ...props }, ref) => {
-    const {
-      active,
-      attributes,
-      isDragging,
-      listeners,
-      over,
-      setNodeRef,
-      transition,
-      transform,
-      node,
-    } = useSortable({
-      id,
-      data: { type: "container", children: items },
-      animateLayoutChanges,
-    });
+    const { active, attributes, isDragging, listeners, over, setNodeRef, transition, transform } =
+      useSortable({
+        id,
+        data: { type: "container", children: items },
+        animateLayoutChanges,
+      });
 
     const isOverContainer = useMemo(() => {
       if (!over) {
@@ -52,7 +43,7 @@ export const DroppableContainer = forwardRef<HTMLDivElement, DroppableContainerP
 
     return (
       <Container
-        ref={disabled ? ref : combinedRef} // Use the combined ref here
+        ref={disabled ? ref : combinedRef}
         hover={isOverContainer}
         columns={columns}
         handleProps={{ ...attributes, ...listeners }}
@@ -64,10 +55,9 @@ export const DroppableContainer = forwardRef<HTMLDivElement, DroppableContainerP
         }}
         {...props}
       >
-        {/* Pass the ref to each child */}
         {React.Children.map(children, (child) =>
           React.isValidElement(child) && "containerRef" in child.props
-            ? React.cloneElement(child, { ...{ containerRef: node } }) // Pass ref only if child supports containerRef
+            ? React.cloneElement(child, { ...{ containerRef: ref } }) // Pass ref only if child supports containerRef
             : child
         )}
       </Container>

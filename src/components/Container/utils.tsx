@@ -4,13 +4,7 @@ import { Items } from "../../types/types";
 import { Item } from "../Item";
 import { getColor, getIndex } from "../../utils/util";
 
-export function renderContainerDragOverlay({
-  containerId,
-  items,
-  columns,
-  handle = false,
-  getItemStyles = () => ({}),
-}: {
+export interface ContainerDragOverlay {
   containerId: UniqueIdentifier;
   items: Items;
   columns?: number;
@@ -24,8 +18,15 @@ export function renderContainerDragOverlay({
     isSorting: boolean;
     isDragOverlay: boolean;
   }): React.CSSProperties;
-  wrapperStyle?(args: { index: number }): React.CSSProperties;
-}) {
+}
+
+export function renderContainerDragOverlay({
+  containerId,
+  items,
+  columns,
+  handle = false,
+  getItemStyles = () => ({}),
+}: ContainerDragOverlay) {
   return (
     <Container
       label={`Column ${containerId}`}
@@ -36,7 +37,7 @@ export function renderContainerDragOverlay({
     >
       {items[containerId].map((item, index) => (
         <Item
-          key={item}
+          key={index}
           value={item}
           handle={handle}
           style={getItemStyles({
