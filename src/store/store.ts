@@ -3,7 +3,7 @@ import data from "../features/data/data";
 
 const store = configureStore({
   reducer: {
-    data: data,
+    data,
   },
 });
 

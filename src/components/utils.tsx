@@ -44,7 +44,7 @@ export const onDragOver = (
     return;
   }
 
-  // Find the containers for both the active (dragged) item and the item it is currently over
+  // Find the scheduledEvents for both the active (dragged) item and the item it is currently over
   const overContainer = findContainer(overId, items);
   const activeContainer = findContainer(event.active.id, items);
 
@@ -102,16 +102,16 @@ export const onDragOver = (
 };
 
 export const onDragEnd = (event: DragEndEvent) => {
-  const { items, containers, activeId } = store.getState().data;
+  const { items, scheduledEvents, activeId } = store.getState().data;
   const dispatch = store.dispatch;
 
-  // 1. Check if the dragged item is part of the containers and if there is a valid drop target
+  // 1. Check if the dragged item is part of the scheduledEvents and if there is a valid drop target
   if (event.active.id in items && event.over?.id) {
-    const activeIndex = containers.indexOf(event.active.id);
-    const overIndex = containers.indexOf(event.over.id);
+    const activeIndex = scheduledEvents.indexOf(event.active.id);
+    const overIndex = scheduledEvents.indexOf(event.over.id);
 
     if (activeIndex !== -1 && overIndex !== -1) {
-      const newContainers = arrayMove(containers, activeIndex, overIndex);
+      const newContainers = arrayMove(scheduledEvents, activeIndex, overIndex);
       dispatch(setContainers(newContainers));
     }
   }
@@ -148,7 +148,7 @@ export const onDragEnd = (event: DragEndEvent) => {
   if (overId === PLACEHOLDER_ID) {
     const newContainerId = getNextContainerId(items);
 
-    dispatch(setContainers([...containers, newContainerId]));
+    dispatch(setContainers([...scheduledEvents, newContainerId]));
     dispatch(
       setItems({
         ...items,

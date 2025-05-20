@@ -2,7 +2,7 @@ import { DraggableSyntheticListeners } from "@dnd-kit/core";
 import type { Transform } from "@dnd-kit/utilities";
 import classNames from "classnames";
 import React, { useEffect } from "react";
-import { Handle, Remove } from "./components"; // Assume Handle is your drag handle component
+import { Handle, Remove } from "./components"; // Drag handle and remove components
 import styles from "./Item.module.css";
 import DropdownSelect from "../DropdownSelect/DropdownSelect";
 import { shallowEqual, useSelector } from "react-redux";
@@ -16,7 +16,6 @@ interface Props {
   handle?: boolean;
   handleProps?: React.HTMLAttributes<HTMLButtonElement>;
   handleRef?: (element: HTMLElement | null) => void;
-  height?: number;
   index?: number;
   fadeIn?: boolean;
   transform?: Transform | null;
@@ -39,8 +38,7 @@ export const Item = React.memo(
         fadeIn,
         handle,
         handleProps,
-        handleRef, // This is the ref for the handle
-        // height,
+        handleRef,
         index,
         listeners,
         onRemove,
@@ -52,18 +50,33 @@ export const Item = React.memo(
       },
       ref
     ) => {
+      // Update cursor during drag overlay
       useEffect(() => {
-        if (!dragOverlay) return;
-
-        document.body.style.cursor = "grabbing";
-
-        return () => {
-          document.body.style.cursor = "";
-        };
+        if (dragOverlay) {
+          document.body.style.cursor = "grabbing";
+          return () => {
+            document.body.style.cursor = "";
+          };
+        }
       }, [dragOverlay]);
 
-      // Access state context
-      const { items } = useSelector((state: RootState) => state.data, shallowEqual);
+      // Retrieve items from Redux state
+      const items = useSelector((state: RootState) => state.data.items, shallowEqual);
+
+      // Define inline styles
+      const computedStyles: React.CSSProperties = {
+        ...style,
+        backgroundColor: "#FFECDF",
+        maxHeight: "127px",
+        maxWidth: "393px",
+        transition: [transition, styles?.transition].filter(Boolean).join(", "),
+        "--translate-x": transform ? `${Math.round(transform.x)}px` : undefined,
+        "--translate-y": transform ? `${Math.round(transform.y)}px` : undefined,
+        "--scale-x": transform?.scaleX ? `${transform.scaleX}` : undefined,
+        "--scale-y": transform?.scaleY ? `${transform.scaleY}` : undefined,
+        "--index": index,
+        "--color": color,
+      } as React.CSSProperties;
 
       return (
         <li
@@ -73,18 +86,7 @@ export const Item = React.memo(
             [styles.sorting]: sorting,
             [styles.dragOverlay]: dragOverlay,
           })}
-          style={
-            {
-              ...styles,
-              transition: [transition, styles?.transition].filter(Boolean).join(", "),
-              "--translate-x": transform ? `${Math.round(transform.x)}px` : undefined,
-              "--translate-y": transform ? `${Math.round(transform.y)}px` : undefined,
-              "--scale-x": transform?.scaleX ? `${transform.scaleX}` : undefined,
-              "--scale-y": transform?.scaleY ? `${transform.scaleY}` : undefined,
-              "--index": index,
-              "--color": color,
-            } as React.CSSProperties
-          }
+          style={computedStyles}
         >
           <div
             className={classNames(styles.Item, {
@@ -94,28 +96,22 @@ export const Item = React.memo(
               [styles.disabled]: disabled,
               [styles.color]: color,
             })}
-            style={{
-              ...style,
-              backgroundColor: "#FFECDF",
-              maxHeight: "127px",
-              maxWidth: "393px",
-            }}
             data-cypress="draggable-item"
             tabIndex={!handle ? 0 : undefined}
-            {...(!handle ? listeners : undefined)} // Attach listeners only if handle is not specified
+            {...(!handle ? listeners : undefined)}
             {...props}
           >
             <ul>
               <DropdownSelect
-                containerId={"no-container"}
-                id={"no-id"}
+                containerId="no-container"
+                id="no-id"
                 items={items}
-                value={"no-value"}
+                value="no-value"
               />
             </ul>
             <span className={styles.Actions}>
-              {onRemove ? <Remove className={styles.Remove} onClick={onRemove} /> : null}
-              {handle ? <Handle ref={handleRef} {...handleProps} /> : null}
+              {onRemove && <Remove className={styles.Remove} onClick={onRemove} />}
+              {handle && <Handle ref={handleRef} {...handleProps} />}
             </span>
           </div>
         </li>

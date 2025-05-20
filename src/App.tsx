@@ -17,9 +17,9 @@ import { Dispatch } from "redux";
 
 import { Trash } from "./components";
 import { renderContainerDragOverlay } from "./components/Container/utils";
-import { renderSortableItemDragOverlay } from "./components/DayView/utils";
+import { renderSortableItemDragOverlay } from "./components/SchedulerTable/DayView/utils";
 import { onDragCancel, onDragEnd, onDragOver, onDragStart } from "./components/utils";
-import { WeekView } from "./components/WeekView";
+import { WeekView } from "./components/SchedulerTable/WeekView";
 import { setContainers } from "./features/data/data";
 
 import { RootState } from "./store/store";
@@ -38,7 +38,7 @@ export default function MultipleContainers({
   modifiers,
   trashable = true,
 }: AppProps) {
-  const { items, activeId, containers } = useSelector(
+  const { items, activeId, scheduledEvents } = useSelector(
     (state: RootState) => state.data,
     shallowEqual
   );
@@ -48,7 +48,7 @@ export default function MultipleContainers({
   const lastOverId = useRef<UniqueIdentifier | null>(null);
   const recentlyMovedToNewContainer = useRef<boolean>(false);
 
-  // Initialize containers on mount
+  // Initialize scheduledEvents on mount
   useEffect(() => {
     if (!initialized.current) {
       dispatch(setContainers(Object.keys(items)));
@@ -78,10 +78,10 @@ export default function MultipleContainers({
   const dragOverlayContent = useMemo(() => {
     if (!activeId) return null;
 
-    return containers.includes(activeId)
+    return scheduledEvents.includes(activeId)
       ? renderContainerDragOverlay({ containerId: activeId, items, columns, handle })
       : renderSortableItemDragOverlay({ id: activeId, items, handle });
-  }, [activeId, containers, items, columns, handle]);
+  }, [activeId, scheduledEvents, items, columns, handle]);
 
   return (
     <DndContext
@@ -104,7 +104,7 @@ export default function MultipleContainers({
         document.body
       )}
 
-      {trashable && activeId && !containers.includes(activeId) && <Trash id={TRASH_ID} />}
+      {trashable && activeId && !scheduledEvents.includes(activeId) && <Trash id={TRASH_ID} />}
     </DndContext>
   );
 }

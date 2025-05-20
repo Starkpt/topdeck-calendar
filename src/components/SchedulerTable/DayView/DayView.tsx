@@ -1,5 +1,5 @@
 import { SortableContext, verticalListSortingStrategy } from "@dnd-kit/sortable";
-import DropdownSelect from "../DropdownSelect/DropdownSelect";
+import DropdownSelect from "../../DropdownSelect/DropdownSelect";
 import { SortableItemProps } from "./types";
 
 export function DayView({ id, items, containerId, containerRef }: SortableItemProps) {

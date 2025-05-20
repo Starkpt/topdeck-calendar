@@ -55,6 +55,7 @@ export const DroppableContainer = forwardRef<HTMLDivElement, DroppableContainerP
         }}
         {...props}
       >
+        Items
         {React.Children.map(children, (child) =>
           React.isValidElement(child) && "containerRef" in child.props
             ? React.cloneElement(child, { ...{ containerRef: ref } }) // Pass ref only if child supports containerRef

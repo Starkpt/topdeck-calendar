@@ -13,11 +13,11 @@ import store from "../store/store";
 const TRASH_ID = "void";
 
 /**
- * Custom collision detection strategy optimized for multiple containers
+ * Custom collision detection strategy optimized for multiple scheduledEvents
  *
- * - First, find any droppable containers intersecting with the pointer.
- * - If there are none, find intersecting containers with the active draggable.
- * - If there are no intersecting containers, return the last matched intersection
+ * - First, find any droppable scheduledEvents intersecting with the pointer.
+ * - If there are none, find intersecting scheduledEvents with the active draggable.
+ * - If there are no intersecting scheduledEvents, return the last matched intersection
  *
  */
 export default function useCollisionDetection(

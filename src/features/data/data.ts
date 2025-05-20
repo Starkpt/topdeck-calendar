@@ -20,7 +20,7 @@ export const data = createSlice({
       // D: createRange(itemCount, (index) => `D${index + 1}`)
     } as ItemsType,
     clonedItems: [] as Items | null[],
-    containers: [] as UniqueIdentifier[],
+    scheduledEvents: [] as UniqueIdentifier[],
     activeId: null,
     movedToNewContainer: false,
   },
@@ -32,19 +32,19 @@ export const data = createSlice({
       state.clonedItems = action.payload;
     },
     setContainers: (state, action) => {
-      state.containers = action.payload;
+      state.scheduledEvents = action.payload;
     },
     setActiveId: (state, action) => {
       state.activeId = action.payload;
     },
 
     handleRemove: (state, action) => {
-      state.containers = state.containers.filter((id) => id !== action.payload);
+      state.scheduledEvents = state.scheduledEvents.filter((id) => id !== action.payload);
     },
     handleAddColumn: (state) => {
       const newContainerId = getNextContainerId(state.items); // Use helper function to get next ID
 
-      state.containers.push(newContainerId); // Append new container ID
+      state.scheduledEvents.push(newContainerId); // Append new container ID
       state.items[newContainerId] = []; // Add empty array for the new container
     },
   },

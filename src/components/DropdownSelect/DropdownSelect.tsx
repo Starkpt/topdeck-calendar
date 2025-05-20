@@ -4,8 +4,8 @@ import { useEffect, useMemo } from "react";
 import Select, { StylesConfig } from "react-select";
 import { useMountStatus } from "../../hooks/customHooks";
 import { getColor } from "../../utils/util";
-import { SortableItemProps } from "../DayView/types";
 import styles from "../Item/Item.module.css";
+import { SortableItemProps } from "../SchedulerTable/DayView/types";
 
 type Game = { label: string; value: string; image: string };
 

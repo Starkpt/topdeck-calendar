@@ -1,7 +1,7 @@
 import { UniqueIdentifier } from "@dnd-kit/core";
-import { Items } from "../../types/types";
-import { findContainer, getColor, getIndex } from "../../utils/util";
-import { Item } from "../Item";
+import { Items } from "../../../types/types";
+import { findContainer, getColor, getIndex } from "../../../utils/util";
+import { Item } from "../../Item";
 
 export function renderSortableItemDragOverlay({
   id,

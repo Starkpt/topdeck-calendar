@@ -7,10 +7,10 @@ import {
 import { useCallback, useMemo } from "react";
 import { shallowEqual, useDispatch, useSelector } from "react-redux";
 import { Dispatch } from "redux";
-import { handleAddColumn, handleRemove } from "../../features/data/data";
-import { RootState } from "../../store/store";
+import { handleAddColumn, handleRemove } from "../../../features/data/data";
+import { RootState } from "../../../store/store";
 import { DayView } from "../DayView";
-import { DroppableContainer } from "../DroppableContainer";
+import { DroppableContainer } from "../../DroppableContainer";
 import { WeekViewProps } from "./types";
 
 const PLACEHOLDER_ID = "placeholder";
@@ -26,21 +26,21 @@ export const WeekView = ({
   const dispatch = useDispatch<Dispatch>();
 
   // Access state context
-  const { items, activeId, containers } = useSelector(
+  const { items, activeId, scheduledEvents } = useSelector(
     (state: RootState) => state.data,
     shallowEqual
   );
 
   // Determine if currently sorting a container
   const isSortingContainer = useMemo(
-    () => (activeId ? containers.includes(activeId) : false),
-    [activeId, containers]
+    () => (activeId ? scheduledEvents.includes(activeId) : false),
+    [activeId, scheduledEvents]
   );
 
-  // Filtered containers for SortableContext
+  // Filtered scheduledEvents for SortableContext
   const filteredContainers = useMemo(
-    () => containers.filter((containerId) => containerId !== PLACEHOLDER_ID),
-    [containers]
+    () => scheduledEvents.filter((containerId) => containerId !== PLACEHOLDER_ID),
+    [scheduledEvents]
   );
 
   // Determine strategy based on vertical prop
@@ -63,7 +63,7 @@ export const WeekView = ({
   return (
     <div style={containerGridStyle}>
       <SortableContext items={filteredContainers} strategy={sortingStrategy}>
-        {containers.map((containerId) => {
+        {scheduledEvents.map((containerId) => {
           if (containerId === PLACEHOLDER_ID) return null; // Skip placeholder in the map loop
 
           return (
